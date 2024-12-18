@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.List;
 
-public class DatabasePokedexWriter implements AutoCloseable, PokedexWriter {
+public class DatabasePokedexWriter implements PokedexWriter {
     private final Connection connection;
     private final PreparedStatement insertStatement;
     private final static String CreateTableStatement = """
@@ -16,14 +16,18 @@ public class DatabasePokedexWriter implements AutoCloseable, PokedexWriter {
                 Pokedex_number  INTEGER,
                 Name TEXT NOT NULL,
                 Generation INTEGER,
+                Is_Legendary BOOLEAN,
+                Type_1 VARCHAR,
+                Type_2 VARCHAR,
                 Abilities INTEGER,
                 Weight_KG DOUBLE
                 )
             """;
     private static final String InsertRecordStatement = """
-            INSERT INTO POKEDEX (Id, Pokedex_number, Name, Generation, Abilities, Weight_KG)
-            VALUES (?,?,?,?,?,?)
+            INSERT INTO POKEDEX (Id, Pokedex_number, Name, Generation,Is_Legendary ,Type_1,Type_2,Abilities, Weight_KG)
+            VALUES (?,?,?,?,?,?,?,?,?)
             """;
+
 
     public DatabasePokedexWriter(File file) throws SQLException{
         this(connectionFor(file));
@@ -76,8 +80,11 @@ public class DatabasePokedexWriter implements AutoCloseable, PokedexWriter {
                 new Parameter(2, pokedex.pokedex_number(),Types.INTEGER),
                 new Parameter(3, pokedex.name(),Types.LONGNVARCHAR),
                 new Parameter(4, pokedex.generation(),Types.INTEGER),
-                new Parameter(5, pokedex.abilities(),Types.INTEGER),
-                new Parameter(6,pokedex.weight(),Types.DOUBLE)
+                new Parameter(5,pokedex.isLegendary(),Types.BOOLEAN),
+                new Parameter(6,pokedex.firstType().name(),Types.LONGNVARCHAR),
+                new Parameter(7,pokedex.secondType().name(),Types.LONGNVARCHAR),
+                new Parameter(8, pokedex.abilities(),Types.INTEGER),
+                new Parameter(9,pokedex.weight(),Types.DOUBLE)
 
         );
     }
